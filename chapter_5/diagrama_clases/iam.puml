@@ -1,0 +1,81 @@
+plantuml
+@startuml "Diagrama Conceptual"
+
+hide circle
+hide empty members
+hide methods
+
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam nodesep 40
+skinparam ranksep 50
+
+title PYMENET - Diagrama Conceptual (Modelo de Dominio por Bounded Contexts)
+
+package "IAM Context" <> {
+class Usuario {
+nombre
+email
+estado
+}
+class Consultor {
+agencia
+}
+class ClientePyme {
+ruc
+rubro
+}
+
+Usuario <|-- Consultor
+Usuario <|-- ClientePyme
+}
+
+package "Workspace Management Context" <> {
+class Workspace {
+nombre
+fechaCreacion
+}
+class OrigenDatos {
+tipoConexion
+credenciales
+}
+class Metadato {
+nombreColumna
+tipoDato
+descripcionComercial
+}
+
+Workspace "1" -- "1..*" OrigenDatos : Contiene >
+OrigenDatos "1" -- "1..*" Metadato : Documentado-por >
+}
+
+package "Conversational Analytics Context" <> {
+class SesionChat {
+fechaInicio
+}
+class Mensaje {
+rolEmisor
+contenido
+fechaHora
+}
+
+SesionChat "1" -- "1..*" Mensaje : Registra >
+}
+
+package "Agent Integration Context" <> {
+class PeticionAnalisis {
+contextoEstructural
+preguntaUsuario
+}
+class RespuestaAnalitica {
+insightNarrativo
+}
+
+PeticionAnalisis "1" -- "1" RespuestaAnalitica : Resulta-en >
+}
+
+Usuario "1" -- "0.." Workspace : Administra >
+Workspace "1" -- "0.." SesionChat : Aloja >
+Mensaje "*" -- "1" PeticionAnalisis : Dispara >
+
+@enduml

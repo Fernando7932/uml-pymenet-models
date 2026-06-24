@@ -1,0 +1,38 @@
+@startuml "Agent Integration Context de Diseño"
+
+title PYMENET - Diagrama de Clases de Diseño (Agent Integration Context)
+
+skinparam defaultTextAlignment center
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "BC_IntegracionIA (Integración con Agente IA)" {
+    
+    interface IAgentIntegration <<interface>> {
+        + solicitarAnalisis(payload: PeticionAnalisis): RespuestaAnalitica
+    }
+
+    class AdkAgentClient <<Service>> {
+        - endpoint: String
+        - token: String
+        + solicitarAnalisis(payload: PeticionAnalisis): RespuestaAnalitica
+    }
+
+    class PeticionAnalisis <<ValueObject>> {
+        - contextoEstructural: String
+        - preguntaUsuario: String
+        + empaquetarJSON(): String
+    }
+
+    class RespuestaAnalitica <<ValueObject>> {
+        - insightNarrativo: String
+        + parsearResultados(): Object
+    }
+
+    ' Relaciones Internas
+    IAgentIntegration <|.. AdkAgentClient : implementa
+    AdkAgentClient ..> PeticionAnalisis : transmite >
+    AdkAgentClient ..> RespuestaAnalitica : retorna >
+}
+
+@enduml

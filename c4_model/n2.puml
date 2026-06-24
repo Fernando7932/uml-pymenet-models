@@ -1,0 +1,42 @@
+@startuml "Containers"
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Plataforma PYMENET - Container Diagram
+
+' === ACTORES Y SISTEMAS EXTERNOS ===
+Person(user, "Usuario B2B", "Dueño de PYME o Consultor que analiza datos comerciales")
+System_Ext(llm, "Servicio de IA en la Nube", "API externa del modelo fundacional (Gemini)")
+System_Ext(client_db, "Base de Datos Corporativa", "Sistemas del cliente (PostgreSQL, MySQL, etc.)")
+
+' === FRONTERA DEL SISTEMA (PYMENET) ===
+System_Boundary(system, "PYMENET") {
+    
+    Container(web, "Landing Page & Web Application", "Nginx / Static", "Entrega el contenido estático de la página de presentación y despacha los archivos compilados de la SPA")
+    
+    Container(spa, "Single Page Application (SPA)", "React", "Portal Principal en el navegador: configuración de workspaces y entorno conversacional de chat analítico")
+        
+    Container(api, "Core Backend & API Gateway", "Python - FastAPI", "Orquesta la lógica del negocio, gestiona el pool de conexiones y enruta peticiones")
+    
+    Container(ai_engine, "AI Analytics Agent", "Python - Google ADK", "Microservicio aislado del Agente de Analytics")
+    
+    ContainerDb(db, "Database", "PostgreSQL", "Almacena perfiles de usuario, metadatos, configuraciones e historial de chats")
+}
+
+' === RELACIONES ===
+' Interacción con el despacho estático
+Rel(user, web, "Visita pymenet.com usando [HTTPS]")
+Rel(web, spa, "Entrega los archivos de la aplicación al navegador del cliente")
+
+' Interacción real con la aplicación e infraestructura
+Rel(user, spa, "Interactúa y realiza consultas en lenguaje natural")
+Rel(spa, api, "Crea una llamada a la API con [JSON/HTTPS]")
+
+' Lógica interna del Backend e Inteligencia Artificial
+Rel(api, ai_engine, "Solicita generación de código analítico a [REST]")
+Rel(api, db, "Lee y Escribe a [SQL/TCP]")
+
+' Comunicación con Sistemas Externos
+Rel(ai_engine, llm, "Crea una llamada a la API con [HTTPS]")
+Rel(api, client_db, "Lee el esquema y ejecuta read-only queries a [SQL/TCP]")
+
+@enduml

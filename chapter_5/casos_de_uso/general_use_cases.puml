@@ -1,0 +1,16 @@
+@startuml
+
+
+actor "Usuario B2B" as user
+
+rectangle "PYMENET \n\nPlataforma analítica basada en IA\nque transforma lenguaje natural\nen consultas de datos, dashboards\ndinámicos e insights de negocio." as pymenet
+
+cloud "Servicio de IA en Cloud\n(API Externa / LLM)" as llm
+
+database "Bases de Datos Externas\n(Sistemas del Cliente)" as client_db
+
+user ..> pymenet : Carga archivos, configura datos\ne interactúa mediante chat
+pymenet ..> llm : Delega el razonamiento lógico\ny la generación de código
+pymenet ..> client_db : Lee esquemas y ejecuta\nconsultas (Modo Read-Only)
+
+@enduml

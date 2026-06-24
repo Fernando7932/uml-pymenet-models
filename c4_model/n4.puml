@@ -1,0 +1,193 @@
+@startuml
+
+title PYMENET - Diagrama de Clases de Diseño
+
+' === CONFIGURACIÓN DE ESPACIOS Y DISEÑO ===
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 40
+skinparam classAttributeIconSize 0
+
+' ==========================================
+' FILA 1: IAM (Izquierda) | WORKSPACES (Derecha)
+' ==========================================
+package "BC_IAM" {
+    package "Apartado_Usuarios" {Courses
+        
+        abstract class Usuario <<AggregateRoot>> {
+            # id: UsuarioId
+            # nombre: String
+            # email: Email
+            # estado: EstadoUsuario
+            + iniciarSesion(cred: CredencialesUsuario): Boolean
+            + cerrarSesion(): void
+        }
+
+        class Consultor {
+            - agencia: String
+            + administrarClientes(): void
+        }
+
+        class ClientePyme {
+            - ruc: Ruc
+            - rubro: String
+            + obtenerMetricas(): void
+        }
+
+        class CredencialesUsuario <<ValueObject>> {
+            - hashContrasena: String
+        }
+        
+        enum EstadoUsuario <<ValueObject>> {
+            ACTIVO
+            BLOQUEADO
+        }
+
+        Usuario <|-- Consultor
+        Usuario <|-- ClientePyme
+        Usuario ..> EstadoUsuario
+        Usuario ..> CredencialesUsuario
+    }
+}
+
+package "BC_Workspaces" {
+    package "Apartado_Workspace" {
+        
+        class Workspace <<AggregateRoot>> {
+            - id: WorkspaceId
+            - propietarioId: UsuarioId
+            - nombre: String
+            - fechaCreacion: Date
+            + cargarArchivoCSV(archivo: ArchivoCSV): Boolean
+            + conectarBaseDatos(cred: CredencialesBD): Boolean
+            + empaquetarContexto(): ContextoAnalitico
+        }
+
+        class Metadato <<ValueObject>> {
+            - nombreColumna: String
+            - tipoDato: String
+            - descripcion: String
+        }
+
+        class CredencialesBD <<ValueObject>> {
+            - host: String
+            - puerto: Integer
+            - usuario: String
+            - passwordCifrado: String
+        }
+
+        class ArchivoCSV <<ValueObject>> {
+            - nombreArchivo: String
+            - contenidoRaw: Byte[]
+        }
+
+        class ContextoAnalitico <<ValueObject>> {
+            - metadatos: List<Metadato>
+            - esquemaLogico: String
+        }
+
+        Workspace *-- "1..*" Metadato : contiene >
+    }
+}
+
+' ==========================================
+' FILA 2: ANALYTICS (Izquierda) | INTEGRACION IA (Derecha)
+' ==========================================
+package "BC_Analytics" {
+    package "Apartado_Chat" {
+        
+        class ChatSession <<AggregateRoot>> {
+            - id: SesionId
+            - workspaceId: WorkspaceId
+            + recibirPrompt(prompt: PromptUsuario): RespuestaAnalisis
+            + procesarRespuestaIA(respuesta: RespuestaAnalisis): void
+        }
+
+        class MensajeChat <<ValueObject>> {
+            - rol: String
+            - contenido: String
+            - fechaHora: Date
+        }
+
+        class PromptUsuario <<ValueObject>> {
+            - textoNatural: String
+        }
+
+        ChatSession *-- "0..*" MensajeChat : almacena >
+    }
+}
+
+package "BC_IntegracionIA" {
+    package "Apartado_Agente" {
+        
+        interface IAgentIntegration <<interface>> {
+            + solicitarAnalisis(payload: AgentPayload): RespuestaAnalisis
+        }
+
+        class AdkAgentClient <<Service>> {
+            - endpoint: String
+            - token: String
+            + solicitarAnalisis(payload: AgentPayload): RespuestaAnalisis
+            - construirPayload(p: PromptUsuario, c: CredencialesBD, m: ContextoAnalitico): AgentPayload
+        }
+
+        class AgentPayload <<ValueObject>> {
+            - queryUsuario: String
+            - configDatabase: String
+            - diccionarioMetadatos: String
+        }
+
+        class RespuestaAnalisis <<ValueObject>> {
+            - querySQL: String
+            - insight: String
+            - configGrafico: String
+        }
+
+        IAgentIntegration <|.. AdkAgentClient
+        AdkAgentClient ..> AgentPayload : crea >
+        AdkAgentClient ..> RespuestaAnalisis : retorna >
+    }
+}
+
+' ==========================================
+' FILA 3: OBJETOS DE VALOR COMPARTIDOS (Base)
+' ==========================================
+package "BC_Compartido" {
+    together {
+        class UsuarioId <<ValueObject>> {
+            - value: Integer
+        }
+        class WorkspaceId <<ValueObject>> {
+            - value: Integer
+        }
+        class SesionId <<ValueObject>> {
+            - value: Integer
+        }
+        class Email <<ValueObject>> {
+            - direccion: String
+        }
+        class Ruc <<ValueObject>> {
+            - numero: String
+        }
+    }
+    
+    UsuarioId -[hidden]-> WorkspaceId
+    WorkspaceId -[hidden]-> SesionId
+    SesionId -[hidden]-> Email
+    Email -[hidden]-> Ruc
+}
+
+' === MAGIA DEL ORDENAMIENTO ===
+BC_IAM -[hidden]-> BC_Workspaces
+BC_IAM -[hidden]-> BC_Analytics
+BC_Analytics -[hidden]-> BC_IntegracionIA
+BC_Workspaces -[hidden]-> BC_IntegracionIA
+BC_Analytics -[hidden]-> BC_Compartido
+
+' === RELACIONES DOMINANTES ===
+Consultor ..> Workspace : crea >
+ChatSession ..> IAgentIntegration : consume >
+
+@enduml

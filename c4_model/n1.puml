@@ -1,0 +1,21 @@
+@startuml "Context"
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title PYMENET - Context Diagram
+
+' Actores
+Person(user, "Usuario B2B", "Dueño de PYME o Consultor que analiza datos comerciales")
+
+' Sistema Principal
+System(pymenet, "PYMENET SaaS", "Plataforma analítica que transforma lenguaje natural en consultas de datos, dashboards dinámicos e insights")
+
+' Sistemas Externos
+System_Ext(llm, "Servicio de IA en GCP", "API externa del Agente de IA")
+System_Ext(client_db, "Base de Datos Corporativa", "Sistemas de origen de datos del cliente (PostgreSQL, MySQL, etc.)")
+
+' Relaciones
+Rel(user, pymenet, "Carga archivos, configura datos y realiza consultas analíticas usando")
+Rel(pymenet, llm, "Delega el razonamiento lógico y la generación de código a")
+Rel(pymenet, client_db, "Lee esquemas y ejecuta consultas en modo Read-Only en")
+
+@enduml

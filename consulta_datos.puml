@@ -1,0 +1,29 @@
+@startuml Secuencia_Anclar_Grafico
+
+actor "Usuario" as U
+boundary "Interfaz Usuario" as UI
+control "Sistema / Controlador" as System
+entity "Subscription" as Subs
+
+U -> UI: Seleccionar opción de anclaje
+activate UI
+UI -> System: procesarAnclaje(graficoId)
+activate System
+
+== <<include>> Validar Límite de Suscripción ==
+System -> Subs: validarLimite(usuarioId)
+activate Subs
+return estadoValido
+
+alt estadoValido == true
+    System -> System: registrarAnclaje()
+    System --> UI: confirmación Exitosa
+    UI --> U: Gráfico anclado con éxito
+else estadoValido == false
+    System --> UI: errorSuscripcion()
+    UI --> U: Alerta: Debe actualizar su plan
+end
+deactivate System
+deactivate UI
+
+@enduml

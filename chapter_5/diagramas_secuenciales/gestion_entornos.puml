@@ -1,0 +1,39 @@
+@startuml Diagrama_Secuencia_Consulta_Lenguaje_Natural
+
+skinparam style strictuml
+skinparam ActorBackgroundColor #ffe6e6
+skinparam ParticipantBackgroundColor #f2f2f2
+
+actor "Usuario" as U
+participant "Interfaz (Chat)" as UI
+participant "Controlador: Motor Analítico" as Motor
+actor "Agente de IA (LLM)" as LLM <<Sistema Externo>>
+actor "Base de Datos" as DB <<Sistema Externo>>
+
+== CUS: Consultar datos mediante lenguaje natural ==
+
+U -> UI: Ingresar Prompt en Lenguaje Natural
+activate UI
+
+UI -> Motor: enviarPrompt(textoConsulta)
+activate Motor
+
+note over Motor, LLM: <<include>> Procesar Intención Analítica
+Motor -> LLM: analizarIntencion(textoConsulta)
+activate LLM
+return consultaGenerada (Ej. SQL estructurado)
+
+note over Motor, DB: <<include>> Ejecutar Consulta Read-Only
+Motor -> DB: ejecutarConsultaSegura(consultaGenerada)
+activate DB
+return resultadosDatos
+
+note over Motor, UI: <<include>> Renderizar Resultados e Insights
+Motor -> Motor: estructurarDatosEInsights(resultadosDatos)
+Motor --> UI: enviarResultadosFormateados(datos, insights)
+deactivate Motor
+
+UI --> U: Mostrar gráficos y respuesta textual
+deactivate UI
+
+@enduml

@@ -1,16 +1,27 @@
-@startuml
+@startuml "CUN Global"
+left to right direction
 
+actor/ "Dueño de PYME" <<Business Actor>> as pyme
+actor/ "Consultor" <<Business Actor>> as consultor
 
-actor "Usuario B2B" as user
+rectangle "Contexto de Negocio: PYMENET SaaS" {
+  usecase/ "CUN-01: Consultar datos\nmediante lenguaje natural" as cun1
+  usecase/ "CUN-02: Gestionar Entornos\nde Trabajo y Reportes" as cun2
+}
 
-rectangle "PYMENET \n\nPlataforma analítica basada en IA\nque transforma lenguaje natural\nen consultas de datos, dashboards\ndinámicos e insights de negocio." as pymenet
+pyme --> cun1
+consultor --> cun1
+consultor --> cun2
 
-cloud "Servicio de IA en Cloud\n(API Externa / LLM)" as llm
-
-database "Bases de Datos Externas\n(Sistemas del Cliente)" as client_db
-
-user ..> pymenet : Carga archivos, configura datos\ne interactúa mediante chat
-pymenet ..> llm : Delega el razonamiento lógico\ny la generación de código
-pymenet ..> client_db : Lee esquemas y ejecuta\nconsultas (Modo Read-Only)
-
+skinparam usecase {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam actor {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam Arrow {
+  Color #7A1631
+}
 @enduml

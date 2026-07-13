@@ -1,0 +1,40 @@
+@startuml "DS-01: Consultar Datos"
+autonumber
+skinparam maxmessagesize 150
+
+actor "Usuario" as Cliente
+boundary "InterfazChat" as UI
+control "OrquestadorIA (AIDA)" as Controlador
+entity "ContextoAnalitico" as Entidad
+database "BaseDatos_Cliente" as BDExterna
+participant "AIDA - Cloud Run" as LLM
+
+Cliente -> UI : enviarPrompt(textoConsulta)
+activate UI
+
+UI -> Controlador : procesarIntencion(textoConsulta)
+activate Controlador
+
+Controlador -> Entidad : recuperarEsquemaWorkspace()
+activate Entidad
+Entidad --> Controlador : metadatosYTablas
+deactivate Entidad
+
+Controlador -> LLM : solicitarAnalisis(textoConsulta, metadatosYTablas)
+activate LLM
+LLM --> Controlador : querySQL + configGrafico
+deactivate LLM
+
+Controlador -> BDExterna : ejecutarQueryReadOnly(querySQL)
+activate BDExterna
+BDExterna --> Controlador : dataResultante
+deactivate BDExterna
+
+Controlador -> Controlador : empaquetarDatosEInsights()
+
+Controlador --> UI : respuestaFormateada (JSON)
+deactivate Controlador
+
+UI --> Cliente : renderizarGraficoYTexto()
+deactivate UI
+@enduml

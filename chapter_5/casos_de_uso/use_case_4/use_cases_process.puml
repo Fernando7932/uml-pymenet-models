@@ -1,0 +1,38 @@
+@startuml "Flujo UC-02"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Usuario|
+start
+:Hace clic en "Anclar al Dashboard";
+
+|Sistema PYMENET|
+if (¿Excede límite visual del plan?) then (Sí)
+  :Cancela el guardado;
+  :Despliega alerta de límite de suscripción;
+  stop
+else (No)
+  :Guarda referencia visual en BD del Workspace;
+  
+  |Usuario|
+  :Navega a la pestaña de "Dashboard";
+  
+  |Sistema PYMENET|
+  :Compila gráficos anclados;
+  :Renderiza el tablero de control;
+  
+  |Usuario|
+  :Selecciona opción "Compartir por Enlace";
+  
+  |Sistema PYMENET|
+  :Genera URL única y segura (solo lectura);
+  
+  |Usuario|
+  :Copia el enlace para su distribución;
+  stop
+endif
+@enduml

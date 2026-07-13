@@ -1,0 +1,104 @@
+@startuml "Diagrama ER - PYMENET"
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&key></color> x
+!define column(x) <color:#efefef><&media-record></color> x
+!define table(x) entity x << (T, white) >>
+
+hide circle
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+skinparam class {
+    BackgroundColor #F8F9FA
+    BorderColor #7A1631
+    ArrowColor #7A1631
+}
+
+title Modelo Entidad-Relación (ERD) - PYMENET
+
+table("Usuarios") {
+  primary_key(id_usuario) : INT
+  --
+  column(nombre) : VARCHAR(100)
+  column(email) : VARCHAR(150) [UNIQUE]
+  column(hash_contrasena) : VARCHAR(255)
+  column(rol) : VARCHAR(50)
+  column(estado) : VARCHAR(20)
+  column(fecha_registro) : DATETIME
+}
+
+table("Workspaces") {
+  primary_key(id_workspace) : INT
+  --
+  foreign_key(propietario_id) : INT
+  column(nombre_entorno) : VARCHAR(100)
+  column(fecha_creacion) : DATETIME
+}
+
+table("Conexiones_BD") {
+  primary_key(id_conexion) : INT
+  --
+  foreign_key(workspace_id) : INT
+  column(motor_sql) : VARCHAR(50)
+  column(host) : VARCHAR(255)
+  column(puerto) : INT
+  column(usuario_bd) : VARCHAR(100)
+  column(password_cifrado) : VARCHAR(255)
+}
+
+table("Archivos_Datos") {
+  primary_key(id_archivo) : INT
+  --
+  foreign_key(workspace_id) : INT
+  column(nombre_archivo) : VARCHAR(150)
+  column(formato) : VARCHAR(10)
+  column(ruta_almacenamiento) : VARCHAR(255)
+  column(descripcion_general) : TEXT
+  column(fecha_subida) : DATETIME
+}
+
+table("Metadatos_Diccionario") {
+  primary_key(id_metadato) : INT
+  --
+  foreign_key(workspace_id) : INT
+  column(nombre_tabla) : VARCHAR(100)
+  column(nombre_columna) : VARCHAR(100)
+  column(tipo_dato) : VARCHAR(50)
+  column(descripcion_semantica) : TEXT
+}
+
+table("Sesiones_Chat") {
+  primary_key(id_sesion) : INT
+  --
+  foreign_key(workspace_id) : INT
+  column(titulo_sesion) : VARCHAR(150)
+  column(fecha_inicio) : DATETIME
+}
+
+table("Mensajes_Chat") {
+  primary_key(id_mensaje) : INT
+  --
+  foreign_key(sesion_id) : INT
+  column(rol_emisor) : VARCHAR(20)
+  column(contenido_texto) : TEXT
+  column(fecha_hora) : DATETIME
+}
+
+table("Componentes_Dashboard") {
+  primary_key(id_componente) : INT
+  --
+  foreign_key(workspace_id) : INT
+  column(tipo_grafico) : VARCHAR(50)
+  column(configuracion_json) : JSON
+  column(fecha_anclado) : DATETIME
+}
+
+' Relaciones (Notación Crow's Foot)
+Usuarios ||--o{ Workspaces
+Workspaces ||--o{ Conexiones_BD
+Workspaces ||--o{ Archivos_Datos
+Workspaces ||--o{ Metadatos_Diccionario
+Workspaces ||--o{ Sesiones_Chat
+Workspaces ||--o{ Componentes_Dashboard
+Sesiones_Chat ||--o{ Mensajes_Chat
+
+@enduml

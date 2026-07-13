@@ -1,0 +1,136 @@
+@startuml "Diagrama de Despliegue - PYMENET (Multi-Cloud)"
+
+left to right direction
+
+skinparam linetype ortho
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam nodesep 80
+skinparam ranksep 90
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+
+'=====================================================
+' CLIENTE
+'=====================================================
+
+node "Dispositivo del Cliente" as Client {
+    artifact "Navegador Web"
+}
+
+'=====================================================
+' AWS
+'=====================================================
+
+rectangle "AWS Cloud" {
+
+    node "AWS Amplify" as Amplify {
+        artifact "SPA React\n(Frontend)"
+    }
+
+    node "Amazon API Gateway" as ApiGateway
+
+    rectangle "Microservicios Serverless (AWS Lambda)" {
+
+        node "IAM Lambda" as IAM {
+            artifact "IAMMicroservice.zip" {
+                component "Interface"
+                component "Application Service"
+                component "Domain Model"
+                component "Infrastructure"
+            }
+        }
+
+        node "Workspace Lambda" as Workspace {
+            artifact "WorkspaceMicroservice.zip" {
+                component "Interface"
+                component "Application Service"
+                component "Domain Model"
+                component "Infrastructure"
+            }
+        }
+
+        node "Analytics Lambda" as Analytics {
+            artifact "AnalyticsMicroservice.zip" {
+                component "Interface"
+                component "Application Service"
+                component "Domain Model"
+                component "Infrastructure"
+            }
+        }
+
+        node "Agent Integration Lambda" as Agent {
+            artifact "AgentIntegrationMicroservice.zip" {
+                component "Interface"
+                component "Application Service"
+                component "Domain Model"
+                component "Infrastructure"
+            }
+        }
+
+        ' Forzar una sola fila
+        IAM -[hidden]right-> Workspace
+        Workspace -[hidden]right-> Analytics
+        Analytics -[hidden]right-> Agent
+    }
+
+    database "Amazon RDS\n(PostgreSQL)" as RDS
+
+}
+
+'=====================================================
+' GCP
+'=====================================================
+
+rectangle "Google Cloud Platform" {
+
+    node "Cloud Run" as CloudRun {
+        artifact "AIDA"
+    }
+
+}
+
+'=====================================================
+' EXTERNOS
+'=====================================================
+
+rectangle "Infraestructura Externa" {
+
+    database "Base de Datos Cliente" as ClientDB
+
+}
+
+'=====================================================
+' ORDEN DEL DIAGRAMA
+'=====================================================
+
+Client -[hidden]down-> Amplify
+Amplify -[hidden]right-> ApiGateway
+ApiGateway -[hidden]right-> IAM
+Agent -[hidden]right-> RDS
+
+RDS -[hidden]down-> CloudRun
+CloudRun -[hidden]right-> ClientDB
+
+'=====================================================
+' CONEXIONES
+'=====================================================
+
+Client --> Amplify : HTTPS
+
+Client --> ApiGateway : HTTPS (REST)
+
+ApiGateway --> IAM : Invocation
+ApiGateway --> Workspace : Invocation
+ApiGateway --> Analytics : Invocation
+ApiGateway --> Agent : Invocation
+
+IAM --> RDS : TCP/IP (5432)
+Workspace --> RDS : TCP/IP (5432)
+Analytics --> RDS : TCP/IP (5432)
+
+Workspace --> ClientDB : TCP/IP (Lectura DDL)
+
+Agent --> CloudRun : HTTPS (JSON)
+
+@enduml

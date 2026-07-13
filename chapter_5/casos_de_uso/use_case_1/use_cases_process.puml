@@ -1,0 +1,48 @@
+@startuml "Flujo UC-01"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Usuario|
+start
+:Selecciona espacio de trabajo;
+:Escribe pregunta de negocio (prompt);
+
+|Sistema PYMENET|
+:Recibe prompt y recupera\nesquema de metadatos;
+:Envía prompt y metadatos;
+
+|Agente de IA|
+:Procesa intención analítica;
+
+if (¿Ambigüedad en la consulta?) then (Sí)
+  :Devuelve código de error semántico;
+  |Sistema PYMENET|
+  :Muestra mensaje solicitando reformulación;
+  |Usuario|
+  :Ingresa nueva consulta;
+  stop
+else (No)
+  |Agente de IA|
+  :Devuelve consulta lógica estructurada\ny sugerencia de visualización;
+  
+  |Sistema PYMENET|
+  if (¿Es una operación de solo lectura?) then (Sí)
+    :Ejecuta consulta lógica de manera segura;
+    :Formatea resultados y redacta insight narrativo;
+    :Renderiza tabla/gráfico e insight dinámicamente;
+    |Usuario|
+    :Visualiza respuesta analítica;
+    stop
+  else (No - Previene Inyección)
+    |Sistema PYMENET|
+    :Bloquea la transacción instantáneamente;
+    :Registra incidente en logs de seguridad;
+    :Muestra mensaje de error técnico;
+    stop
+  endif
+endif
+@enduml

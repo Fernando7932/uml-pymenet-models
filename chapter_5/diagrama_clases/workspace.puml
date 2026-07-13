@@ -1,0 +1,47 @@
+@startuml "Workspace Management Context"
+title PYMENET - Diagrama de Clases de Diseño (Workspace Management Context)
+
+skinparam defaultTextAlignment center
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "BC_Workspaces (Gestión de Entornos)" {
+    
+    class Workspace <<AggregateRoot>> {
+        - id: WorkspaceId
+        - propietarioId: UsuarioId
+        - nombre: String
+        - fechaCreacion: Date
+        + cargarArchivo(archivo: Archivo): Boolean
+        + conectarBaseDatos(cred: CredencialesBD): Boolean
+        + empaquetarContexto(): ContextoAnalitico
+    }
+
+    class Metadato <<ValueObject>> {
+        - nombreColumna: String
+        - tipoDato: String
+        - descripcion: String
+    }
+
+    class CredencialesBD <<ValueObject>> {
+        - host: String
+        - puerto: Integer
+        - usuario: String
+        - passwordCifrado: String
+    }
+
+    class Archivo <<ValueObject>> {
+        - nombreArchivo: String
+        - formato: String
+        - contenidoRaw: Byte[]
+        - descripcionGeneral: String
+    }
+
+    class ContextoAnalitico <<ValueObject>> {
+        - metadatos: List<Metadato>
+        - esquemaLogico: String
+    }
+
+    Workspace *-- "1..*" Metadato : contiene >
+}
+@enduml

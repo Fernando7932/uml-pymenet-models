@@ -10,12 +10,11 @@ ContainerDb(db, "Database", "PostgreSQL", "BD interna del SaaS")
 System_Ext(client_db, "Base de Datos Corporativa", "Sistemas del cliente")
 
 ' Límite del Contenedor Backend
-Container_Boundary(api, "Core Backend") {
+Container_Boundary(api, "Core Backend & API Gateway") {
     Component(iam, "IAM Context", "Identity & Access", "Gestión de usuarios, roles y autenticación JWT")
     Component(workspaces, "Workspace Management Context", "Core Business", "Gestión de entornos, ingesta de archivos y extracción de esquemas SQL")
     Component(analytics, "Conversational Analytics Context", "Core Business", "Orquestación de sesiones de chat y almacenamiento de historial")
     Component(integration, "Agent Integration Context", "Proxy / Anti-Corruption", "Empaquetado de JSON Payload y comunicación segura con IA")
-    Component(shared, "Shared Kernel", "Cross-Cutting", "Modelos base, utilitarios comunes y logging")
 }
 
 ' Relaciones desde el exterior
@@ -27,8 +26,6 @@ Rel(spa, analytics, "Interactúa en chat mediante [JSON/HTTPS]")
 Rel(workspaces, iam, "Verifica permisos")
 Rel(analytics, iam, "Verifica permisos")
 Rel(analytics, integration, "Delega prompt de usuario a")
-Rel(workspaces, shared, "Usa")
-Rel(analytics, shared, "Usa")
 
 ' Relaciones hacia el exterior
 Rel(integration, ai_engine, "Envía JSON Payload a [REST]")

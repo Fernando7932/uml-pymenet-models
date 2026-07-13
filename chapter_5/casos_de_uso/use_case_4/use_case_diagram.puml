@@ -1,0 +1,21 @@
+@startuml "CUN-04: Administrar Conexiones"
+left to right direction
+
+skinparam usecase {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam actor {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam Arrow {
+  Color #7A1631
+}
+
+actor "Dueño de PYME / Consultor" <<Business Actor>> as user
+
+usecase "CUN-04: Administrar Conexiones\ny Orígenes de Datos" as cun4
+
+user --> cun4
+@enduml

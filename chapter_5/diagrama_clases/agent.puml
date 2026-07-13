@@ -8,7 +8,7 @@ skinparam linetype ortho
 
 package "BC_IntegracionIA (Integración con Agente IA)" {
     
-    interface IAgentIntegration <<interface>> {
+    interface AgentIntegration <<interface>> {
         + solicitarAnalisis(payload: PeticionAnalisis): RespuestaAnalitica
     }
 
@@ -30,7 +30,7 @@ package "BC_IntegracionIA (Integración con Agente IA)" {
     }
 
     ' Relaciones Internas
-    IAgentIntegration <|.. AdkAgentClient : implementa
+    AgentIntegration <|.. AdkAgentClient : implementa
     AdkAgentClient ..> PeticionAnalisis : transmite >
     AdkAgentClient ..> RespuestaAnalitica : retorna >
 }

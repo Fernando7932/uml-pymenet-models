@@ -1,0 +1,83 @@
+@startuml "Diagrama de Componentes - PYMENET"
+skinparam componentStyle uml2
+skinparam linetype ortho
+left to right direction
+
+interface "API REST Contract" as Contract
+
+component "PYMENET Core Backend" as API {
+  
+  component "IAM Bounded Context" as BC_IAM {
+    component "Interface Layer" as I_Interface
+    component "Application Layer" as I_Application
+    component "Domain Layer" as I_Domain
+    component "Infrastructure Layer" as I_Infrastructure
+  }
+
+  component "Workspace Bounded Context" as BC_Workspace {
+    component "Interface Layer" as W_Interface
+    component "Application Layer" as W_Application
+    component "Domain Layer" as W_Domain
+    component "Infrastructure Layer" as W_Infrastructure
+  }
+
+  component "Analytics Bounded Context" as BC_Analytics {
+    component "Interface Layer" as A_Interface
+    component "Application Layer" as A_Application
+    component "Domain Layer" as A_Domain
+    component "Infrastructure Layer" as A_Infrastructure
+  }
+
+  component "Agent Integration Bounded Context" as BC_Agent {
+    component "Interface Layer" as AI_Interface
+    component "Application Layer" as AI_Application
+    component "Domain Layer" as AI_Domain
+    component "Infrastructure Layer" as AI_Infrastructure
+  }
+}
+
+database "PostgreSQL Database" as DB <<external>>
+databa  se "Base de Datos Cliente" as ClientDB <<external>>
+component "AI Analytics Agent" as Gemini <<external>>
+
+' La API general expone un contrato hacia el Frontend (SPA)
+API --> Contract
+
+' ==========================================
+' Dependencias de Capas: IAM
+' ==========================================
+I_Interface ..> I_Application
+I_Application ..> I_Domain
+I_Application ..> I_Infrastructure
+
+' ==========================================
+' Dependencias de Capas: Workspace
+' ==========================================
+W_Interface ..> W_Application
+W_Application ..> W_Domain
+W_Application ..> W_Infrastructure
+
+' ==========================================
+' Dependencias de Capas: Analytics
+' ==========================================
+A_Interface ..> A_Application
+A_Application ..> A_Domain
+A_Application ..> A_Infrastructure
+
+' ==========================================
+' Dependencias de Capas: Agent Integration
+' ==========================================
+AI_Interface ..> AI_Application
+AI_Application ..> AI_Domain
+AI_Application ..> AI_Infrastructure
+
+' ==========================================
+' Dependencias Externas (Infraestructura)
+' ==========================================
+I_Infrastructure ..> DB : "Lee/Escribe Usuarios"
+W_Infrastructure ..> DB : "Lee/Escribe Metadatos"
+W_Infrastructure ..> ClientDB : "Extrae Esquemas SQL"
+A_Infrastructure ..> DB : "Lee/Escribe Historial"
+AI_Infrastructure ..> Gemini : "Envía/Recibe Prompts"
+
+@enduml
